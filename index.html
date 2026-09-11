@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title>SMART STRETCH GAME • Mystery Prize</title>
+
+<style>
+:root {
+    --bg: #030a12;
+    --panel: #091725;
+    --line: #234563;
+    --cyan: #42ddff;
+    --green: #55e5a2;
+    --text: #f4f9ff;
+    --muted: #9bb0c5;
+}
+
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+        radial-gradient(
+            circle at 50% -10%,
+            #173653 0,
+            #07121f 38%,
+            #02070d 100%
+        );
+    color: var(--text);
+    font-family:
+        Arial,
+        "Noto Sans Thai",
+        sans-serif;
+}
+
+/* ================= HEADER ================= */
+
+.top {
+    width: min(1500px, 96vw);
+    margin: auto;
+    text-align: center;
+    padding: 12px 0 8px;
+}
+
+.robot-header {
+    width: 100%;
+    height: 145px;
+    object-fit: cover;
+    object-position: center;
+
+    border-radius: 20px;
+    border: 1px solid #264864;
+
+    box-shadow: 0 12px 38px #0008;
+}
+
+h1 {
+    font-size: clamp(24px, 3.5vw, 48px);
+    margin: 12px 0 3px;
+    letter-spacing: 0.8px;
+}
+
+h1 span {
+    color: var(--cyan);
+}
+
+.sub {
+    color: var(--muted);
+    font-size: clamp(13px, 1.5vw, 19px);
+    margin: 0 0 8px;
+}
+
+/* ================= INFO ================= */
+
+.info {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 7px 0 12px;
+}
+
+.info-box {
+    background: #0b1b2c;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 7px 16px;
+}
+
+.info-box b {
+    color: var(--cyan);
+    font-size: 22px;
+}
+
+.info-box small {
+    color: var(--muted);
+    margin-left: 6px;
+}
+
+/* ================= PRIZE GRID ================= */
+
+.grid {
+    width: min(1500px, 96vw);
+    margin: auto;
+
+    display: grid;
+
+    /*
+        168 ช่อง
+        Desktop = 12 columns × 14 rows
+    */
+
+    grid-template-columns: repeat(12, 1fr);
+
+    gap: 8px;
+
+    padding: 0 0 18px;
+}
+
+/* ================= PRIZE TILE ================= */
+
+.tile {
+    border: 1px solid #285171;
+    border-radius: 13px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #10283d,
+            #071522
+        );
+
+    aspect-ratio: 1 / 1;
+
+    min-width: 0;
+
+    cursor: pointer;
+
+    position: relative;
+    overflow: hidden;
+
+    box-shadow: 0 5px 15px #0005;
+
+    transition:
+        transform 0.12s,
+        border-color 0.12s,
+        box-shadow 0.12s;
+}
+
+.tile:hover {
+    border-color: var(--cyan);
+
+    box-shadow:
+        0 0 17px #42ddff28;
+}
+
+.tile:active {
+    transform: scale(0.93);
+}
+
+/* ================= ROBOT BEFORE OPEN ================= */
+
+.tile .robot-img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+
+    display: block;
+}
+
+/* ================= NUMBER ================= */
+
+.number {
+    position: absolute;
+
+    top: 4px;
+    right: 5px;
+
+    background: #06111ddd;
+
+    border-radius: 20px;
+
+    padding: 3px 6px;
+
+    font-size: 10px;
+
+    color: #b8cee1;
+
+    z-index: 5;
+}
+
+/* ================= PRIZE AFTER OPEN ================= */
+
+.tile .prize {
+    display: none;
+
+    width: 100%;
+    height: 100%;
+
+    padding: 9px;
+
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+
+    font-weight: 900;
+
+    font-size: clamp(
+        10px,
+        1.05vw,
+        16px
+    );
+
+    line-height: 1.25;
+}
+
+/* ================= REVEALED ================= */
+
+.tile.revealed {
+    background:
+        linear-gradient(
+            145deg,
+            #123f37,
+            #09221f
+        );
+
+    border-color: var(--green);
+
+    cursor: default;
+}
+
+.tile.revealed .robot-img {
+    display: none;
+}
+
+.tile.revealed .prize {
+    display: flex;
+}
+
+.tile.revealed .number {
+    background: #0b3328;
+    color: var(--green);
+}
+
+/* ================= FOOTER ================= */
+
+.footer {
+    text-align: center;
+
+    color: #7189a2;
+
+    font-size: 12px;
+
+    padding: 0 15px 18px;
+}
+
+/* ================= WINNER POPUP ================= */
+
+.overlay {
+    position: fixed;
+
+    inset: 0;
+
+    background: #000c;
+
+    display: none;
+
+    place-items: center;
+
+    padding: 20px;
+
+    z-index: 30;
+}
+
+.modal {
+    width: min(650px, 94vw);
+
+    background:
+        linear-gradient(
+            145deg,
+            #102c43,
+            #07131f
+        );
+
+    border: 1px solid #4b789e;
+
+    border-radius: 28px;
+
+    padding: 28px;
+
+    text-align: center;
+
+    box-shadow:
+        0 30px 100px #000;
+}
+
+.modal .big {
+    font-size: 76px;
+}
+
+.badge {
+    display: inline-block;
+
+    background: #123e36;
+
+    color: var(--green);
+
+    padding: 7px 14px;
+
+    border-radius: 99px;
+
+    font-weight: 900;
+}
+
+.modal h2 {
+    font-size: 30px;
+
+    margin: 12px 0;
+
+    color: var(--cyan);
+}
+
+.winner {
+    font-size: clamp(
+        27px,
+        4vw,
+        44px
+    );
+
+    font-weight: 900;
+
+    line-height: 1.25;
+
+    margin: 18px 0 24px;
+}
+
+.modal button {
+    border: 0;
+
+    border-radius: 15px;
+
+    padding: 14px 34px;
+
+    font-size: 21px;
+
+    font-weight: 900;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--cyan),
+            #557cff
+        );
+
+    color: #001018;
+
+    cursor: pointer;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 1100px) {
+
+    .grid {
+        grid-template-columns:
+            repeat(10, 1fr);
+    }
+
+}
+
+@media (max-width: 800px) {
+
+    .grid {
+        grid-template-columns:
+            repeat(7, 1fr);
+
+        gap: 7px;
+    }
+
+    .robot-header {
+        height: 110px;
+    }
+
+}
+
+@media (max-width: 520px) {
+
+    .grid {
+        grid-template-columns:
+            repeat(5, 1fr);
+    }
+
+    .robot-header {
+        height: 90px;
+    }
+
+}
+</style>
+</head>
+
+<body>
+
+<!-- =====================================================
+     HEADER
+===================================================== -->
+
+<section class="top">
+
+    <!--
+        เปลี่ยน src ตรงนี้เป็นชื่อไฟล์รูป Robot
+        เช่น robot.png
+    -->
+
+    <img
+        class="robot-header"
+        src="robot.png"
+        alt="Smart Stretch Robot"
+    >
+
+    <h1>
+        🎁
+        <span>SMART STRETCH</span>
+        MYSTERY PRIZE
+    </h1>
+
+    <p class="sub">
+        แตะ 1 ช่อง เพื่อเปิดรางวัลของคุณ
+        • ทุกช่องมีรางวัล
+    </p>
+
+    <div class="info">
+
+        <div class="info-box">
+            <b id="left">168</b>
+            <small>ช่องที่เหลือ</small>
+        </div>
+
+        <div class="info-box">
+            <b>168</b>
+            <small>รางวัลทั้งหมด</small>
+        </div>
+
+        <div class="info-box">
+            <b>22</b>
+            <small>ประเภท</small>
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     PRIZE GRID
+===================================================== -->
+
+<main
+    class="grid"
+    id="grid">
+</main>
+
+
+<div class="footer">
+
+    เลือกได้ 1 ช่องต่อการเล่น
+    •
+    ช่องที่เปิดแล้วจะไม่สามารถเลือกซ้ำได้
+
+</div>
+
+
+<!-- =====================================================
+     WINNER POPUP
+===================================================== -->
+
+<div
+    class="overlay"
+    id="overlay">
+
+    <div class="modal">
+
+        <div class="big">
+            🎉🤖🎁
+        </div>
+
+        <div class="badge">
+            CONGRATULATIONS!
+        </div>
+
+        <h2>
+            คุณเปิดได้รางวัล
+        </h2>
+
+        <div
+            class="winner"
+            id="winner">
+        </div>
+
+        <button
+            onclick="closeWinner()">
+
+            รับรางวัล ✓
+
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* =====================================================
+   รายการของรางวัล
+===================================================== */
+
+const prizeTypes = [
+
+    {
+        name: "เบาะรองนั่งคละสี คละลาย",
+        qty: 6
+    },
+
+    {
+        name: "แก้วนํ้า",
+        qty: 23
+    },
+
+    {
+        name: "แก้วนํ้าใบเล็ก",
+        qty: 15
+    },
+
+    {
+        name: "แก้วนํ้ามีฝาปิดคละลาย",
+        qty: 8
+    },
+
+    {
+        name: "กระจก",
+        qty: 4
+    },
+
+    {
+        name: "กล่องทิชชู่ Kuromi ม่วง",
+        qty: 3
+    },
+
+    {
+        name: "กล่องอาหาร+ช้อนส้อม คละลาย",
+        qty: 5
+    },
+
+    {
+        name: "ขวดนํ้าคละลาย",
+        qty: 12
+    },
+
+    {
+        name: "ตะกร้าอเนกประสงค์",
+        qty: 13
+    },
+
+    {
+        name: "ตะขอแขวน",
+        qty: 4
+    },
+
+    {
+        name: "ตัวถนอมสายชาร์จ",
+        qty: 4
+    },
+
+    {
+        name: "ตุ๊กตา",
+        qty: 6
+    },
+
+    {
+        name: "ถุงซักผ้า คละสี",
+        qty: 8
+    },
+
+    {
+        name: "ทิชชู่กระป๋อง",
+        qty: 5
+    },
+
+    {
+        name: "ที่เสียบแปรงสีฟัน",
+        qty: 2
+    },
+
+    {
+        name: "ที่เสียบปากกากลม",
+        qty: 4
+    },
+
+    {
+        name: "ปากกา",
+        qty: 14
+    },
+
+    {
+        name: "ผ้าไมโครไฟเบอร์",
+        qty: 4
+    },
+
+    {
+        name: "ผ้าห่ม 100x140 cm.",
+        qty: 3
+    },
+
+    {
+        name: "สมุดริมห่วง คละลาย",
+        qty: 8
+    },
+
+    {
+        name: "หมอนรองคอ คละสี",
+        qty: 4
+    },
+
+    {
+        name: "หวี",
+        qty: 13
+    }
+
+];
+
+
+/* =====================================================
+   สร้าง Pool ของรางวัล
+===================================================== */
+
+function makePrizePool() {
+
+    const pool = [];
+
+    prizeTypes.forEach(prize => {
+
+        for (
+            let i = 0;
+            i < prize.qty;
+            i++
+        ) {
+
+            pool.push(prize.name);
+
+        }
+
+    });
+
+
+    /*
+        สุ่มตำแหน่งรางวัล
+    */
+
+    for (
+        let i = pool.length - 1;
+        i > 0;
+        i--
+    ) {
+
+        const j =
+            Math.floor(
+                Math.random() * (i + 1)
+            );
+
+        [
+            pool[i],
+            pool[j]
+        ] =
+        [
+            pool[j],
+            pool[i]
+        ];
+
+    }
+
+
+    /*
+        สร้างช่อง 168 ช่อง
+    */
+
+    return pool.map(
+        (name, index) => ({
+
+            id: index + 1,
+
+            name: name,
+
+            revealed: false
+
+        })
+    );
+
+}
+
+
+/* =====================================================
+   Local Storage
+===================================================== */
+
+const STORAGE =
+    "smartStretchMysteryPrize2026";
+
+
+let state =
+    JSON.parse(
+        localStorage.getItem(STORAGE)
+    );
+
+
+/*
+   ถ้ายังไม่มีข้อมูล
+   ให้สร้าง 168 ช่องใหม่
+*/
+
+if (
+    !state ||
+    !Array.isArray(state.tiles) ||
+    state.tiles.length !== 168
+) {
+
+    state = {
+
+        tiles:
+            makePrizePool()
+
+    };
+
+    saveState();
+
+}
+
+
+/* =====================================================
+   Save
+===================================================== */
+
+function saveState() {
+
+    localStorage.setItem(
+        STORAGE,
+        JSON.stringify(state)
+    );
+
+}
+
+
+/* =====================================================
+   Render ช่องรางวัล
+===================================================== */
+
+const grid =
+    document.getElementById("grid");
+
+
+const left =
+    document.getElementById("left");
+
+
+function render() {
+
+    grid.innerHTML = "";
+
+    let remaining = 0;
+
+
+    state.tiles.forEach(tile => {
+
+        if (!tile.revealed) {
+
+            remaining++;
+
+        }
+
+
+        const element =
+            document.createElement("div");
+
+
+        element.className =
+            "tile" +
+            (
+                tile.revealed
+                    ? " revealed"
+                    : ""
+            );
+
+
+        element.innerHTML = `
+
+            <span class="number">
+
+                #${String(tile.id).padStart(3, "0")}
+
+            </span>
+
+
+            <img
+                class="robot-img"
+                src="robot.png"
+                alt=""
+            >
+
+
+            <div class="prize">
+
+                ${escapeHTML(tile.name)}
+
+            </div>
+
+        `;
+
+
+        /*
+            ถ้ายังไม่เปิด
+            ให้สามารถจิ้มได้
+        */
+
+        if (!tile.revealed) {
+
+            element.onclick =
+                () => revealPrize(tile.id);
+
+        }
+
+
+        grid.appendChild(element);
+
+    });
+
+
+    left.textContent =
+        remaining;
+
+}
+
+
+/* =====================================================
+   เปิดรางวัล
+===================================================== */
+
+const overlay =
+    document.getElementById("overlay");
+
+
+const winner =
+    document.getElementById("winner");
+
+
+function revealPrize(id) {
+
+    const tile =
+        state.tiles.find(
+            x => x.id === id
+        );
+
+
+    if (!tile) {
+
+        return;
+
+    }
+
+
+    /*
+        ป้องกันเปิดซ้ำ
+    */
+
+    if (tile.revealed) {
+
+        return;
+
+    }
+
+
+    /*
+        เปิดช่อง
+    */
+
+    tile.revealed = true;
+
+
+    /*
+        Save
+    */
+
+    saveState();
+
+
+    /*
+        Update หน้าจอ
+    */
+
+    render();
+
+
+    /*
+        แสดง Popup
+    */
+
+    winner.textContent =
+        tile.name;
+
+
+    overlay.style.display =
+        "grid";
+
+}
+
+
+/* =====================================================
+   ปิด Popup
+===================================================== */
+
+function closeWinner() {
+
+    overlay.style.display =
+        "none";
+
+}
+
+
+/* =====================================================
+   กดพื้นที่ด้านนอก Popup
+===================================================== */
+
+overlay.addEventListener(
+    "click",
+    function(event) {
+
+        if (
+            event.target === overlay
+        ) {
+
+            closeWinner();
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+   ป้องกัน HTML Injection
+===================================================== */
+
+function escapeHTML(text) {
+
+    return text.replace(
+        /[&<>"']/g,
+        function(character) {
+
+            return {
+
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#039;"
+
+            }[character];
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   เริ่มระบบ
+===================================================== */
+
+render();
+
+</script>
+
+</body>
+</html>
