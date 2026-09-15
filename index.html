@@ -225,9 +225,9 @@ h1 span { color: var(--cyan); }
   <h1>🎁 <span>SMART STRETCH</span> MYSTERY PRIZE</h1>
   <p class="sub">แตะ 1 ช่อง เพื่อเปิดรางวัลของคุณ • ทุกช่องมีรางวัล</p>
   <div class="info">
-    <div class="info-box"><b id="left">248</b><small>ช่องที่เหลือ</small></div>
-    <div class="info-box"><b>248</b><small>รางวัลทั้งหมด</small></div>
-    <div class="info-box"><b>23</b><small>ประเภท</small></div>
+    <div class="info-box"><b id="left">412</b><small>ช่องที่เหลือ</small></div>
+    <div class="info-box"><b>412</b><small>รางวัลทั้งหมด</small></div>
+    <div class="info-box"><b>24</b><small>ประเภท</small></div>
   </div>
 </section>
 
@@ -273,7 +273,6 @@ function resizeCanvas() {
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
-/* Particle shapes: rect / circle / star / ribbon */
 function makeParticle(ox, oy) {
   const shapes = ['rect','circle','star','ribbon'];
   return {
@@ -295,12 +294,9 @@ function makeParticle(ox, oy) {
 }
 
 function spawnBurst(x, y, count) {
-  for (let i = 0; i < count; i++) {
-    particles.push(makeParticle(x, y));
-  }
+  for (let i = 0; i < count; i++) particles.push(makeParticle(x, y));
 }
 
-/* Firework rocket → explode */
 function spawnFirework(targetX, targetY) {
   const startX = targetX + (Math.random() - 0.5) * 200;
   const startY = canvas.height + 20;
@@ -332,14 +328,10 @@ function drawStar(cx, cy, r, p) {
 
 function tick() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  /* ── rockets ── */
   for (let i = rockets.length - 1; i >= 0; i--) {
     const r = rockets[i];
     r.trail.push({ x: r.x, y: r.y });
     if (r.trail.length > 10) r.trail.shift();
-
-    /* draw trail */
     for (let t = 0; t < r.trail.length; t++) {
       const alpha = (t / r.trail.length) * 0.6;
       ctx.beginPath();
@@ -349,15 +341,11 @@ function tick() {
       ctx.fill();
     }
     ctx.globalAlpha = 1;
-
-    /* draw rocket */
     ctx.beginPath();
     ctx.arc(r.x, r.y, 3, 0, Math.PI * 2);
     ctx.fillStyle = '#fff';
     ctx.fill();
-
     r.x += r.vx; r.y += r.vy;
-
     const dist = Math.hypot(r.x - r.tx, r.y - r.ty);
     if (dist < 30 && !r.exploded) {
       r.exploded = true;
@@ -365,8 +353,6 @@ function tick() {
       rockets.splice(i, 1);
     }
   }
-
-  /* ── confetti particles ── */
   for (let i = particles.length - 1; i >= 0; i--) {
     const p = particles[i];
     p.age++;
@@ -377,15 +363,12 @@ function tick() {
     p.y    += p.vy;
     p.rot  += p.rotV;
     p.alpha = Math.max(0, 1 - p.age / p.life);
-
     if (p.alpha <= 0 || p.y > canvas.height + 40) { particles.splice(i, 1); continue; }
-
     ctx.save();
     ctx.globalAlpha = p.alpha;
     ctx.translate(p.x, p.y);
     ctx.rotate(p.rot);
     ctx.fillStyle = p.color;
-
     if (p.shape === 'rect') {
       ctx.fillRect(-p.size / 2, -p.size * 0.35, p.size, p.size * 0.7);
     } else if (p.shape === 'circle') {
@@ -401,7 +384,6 @@ function tick() {
     }
     ctx.restore();
   }
-
   if (particles.length > 0 || rockets.length > 0) {
     animId = requestAnimationFrame(tick);
   } else {
@@ -416,34 +398,23 @@ function launchElevateShow() {
   particles = [];
   rockets   = [];
   launchCount++;
-
   const cx = canvas.width  * 0.5;
   const cy = canvas.height * 0.35;
-
-  /* immediate burst from center */
   spawnBurst(cx, cy * 0.8, 120);
-
-  /* fireworks at staggered positions */
   const positions = [
     [0.2, 0.25], [0.5, 0.15], [0.8, 0.25],
     [0.35, 0.40], [0.65, 0.40],
     [0.15, 0.55], [0.85, 0.55], [0.5, 0.5]
   ];
   positions.forEach(([rx, ry], idx) => {
-    setTimeout(() => {
-      spawnFirework(canvas.width * rx, canvas.height * ry);
-    }, idx * 280);
+    setTimeout(() => spawnFirework(canvas.width * rx, canvas.height * ry), idx * 280);
   });
-
-  /* second wave */
   setTimeout(() => {
     spawnBurst(cx, cy, 80);
     [0.25, 0.5, 0.75].forEach((rx, i) => {
       setTimeout(() => spawnFirework(canvas.width * rx, canvas.height * 0.3), i * 200);
     });
   }, 1800);
-
-  /* third wave */
   setTimeout(() => {
     for (let i = 0; i < 5; i++) {
       setTimeout(() => {
@@ -451,10 +422,7 @@ function launchElevateShow() {
       }, i * 180);
     }
   }, 3200);
-
   if (!animId) animId = requestAnimationFrame(tick);
-
-  /* auto-stop after 6s */
   setTimeout(stopConfetti, 6000);
 }
 
@@ -468,17 +436,36 @@ function stopConfetti() {
 }
 
 /* ════════════════════════════════════════════
-   PRIZE DATA
+   PRIZE DATA  — 412 prizes, 24 types
 ════════════════════════════════════════════ */
 const prizeTypes = [
-  { name: "WD ELEVATE",                    qty: 75 },
-  { name: "เบาะรองนั่งคละสี คละลาย",       qty: 2  },
-  { name: "แก้วนํ้า",                      qty: 5 },
-  { name: "แก้วนํ้าใบเล็ก",                qty: 1 },
-  { name: "ที่เสียบปากกากลม",             qty: 4  },
+  { name: "WD Elevate",                      qty: 170 },
+  { name: "เบาะรองนั่งคละสี คละลาย",         qty: 7   },
+  { name: "แก้วน้ำ",                          qty: 37  },
+  { name: "แก้วน้ำใบเล็ก",                    qty: 26  },
+  { name: "แก้วน้ำมีฝาปิดคละลาย",             qty: 12  },
+  { name: "กระจก",                            qty: 6   },
+  { name: "กล่องทิชชู่ Kuromi ม่วง",           qty: 5   },
+  { name: "กล่องอาหาร+ช้อนส้อม คละลาย",       qty: 7   },
+  { name: "ขวดน้ำคละลาย",                     qty: 18  },
+  { name: "ตะกร้าอเนกประสงค์",               qty: 18  },
+  { name: "ตะขอแขวน",                         qty: 6   },
+  { name: "ตัวถนอมสายชาร์จ",                  qty: 6   },
+  { name: "ตุ๊กตา",                            qty: 4   },
+  { name: "ถุงซักผ้าใหญ่ คละสี",              qty: 6   },
+  { name: "ถุงซักผ้าเล็ก คละสี",              qty: 6   },
+  { name: "ทิชชู่กระป๋อง",                    qty: 6   },
+  { name: "ที่เสียบแปรงสีฟัน",               qty: 2   },
+  { name: "ที่เสียบปากกา",                    qty: 7   },
+  { name: "ปากกา",                            qty: 17  },
+  { name: "ผ้าไมโครไฟเบอร์",                  qty: 6   },
+  { name: "ผ้าห่ม 100x140 cm.",               qty: 4   },
+  { name: "สมุดริมห่วง คละลาย",              qty: 12  },
+  { name: "หมอนรองคอ คละสี",                 qty: 6   },
+  { name: "หวี",                              qty: 14  }
 ];
 
-const TOTAL = prizeTypes.reduce((s, p) => s + p.qty, 0);
+const TOTAL = prizeTypes.reduce((s, p) => s + p.qty, 0); // 412
 
 function makePrizePool() {
   const pool = [];
@@ -490,7 +477,7 @@ function makePrizePool() {
   return pool.map((name, idx) => ({ id: idx + 1, name, revealed: false }));
 }
 
-const STORAGE = "smartStretchMysteryPrize2026v4";
+const STORAGE = "smartStretchMysteryPrize2026v5";
 let state = JSON.parse(localStorage.getItem(STORAGE));
 if (!state || !Array.isArray(state.tiles) || state.tiles.length !== TOTAL) {
   state = { tiles: makePrizePool() };
@@ -504,7 +491,7 @@ function saveState() { localStorage.setItem(STORAGE, JSON.stringify(state)); }
 const grid   = document.getElementById('grid');
 const leftEl = document.getElementById('left');
 
-function isElevate(n) { return n === 'WD ELEVATE'; }
+function isElevate(n) { return n === 'WD Elevate'; }
 
 function render() {
   grid.innerHTML = '';
@@ -549,13 +536,9 @@ function revealPrize(id) {
   const elevate = isElevate(tile.name);
 
   if (elevate) {
-    /* ── ELEVATE: trigger effects BEFORE showing modal ── */
     launchElevateShow();
-
-    /* flash */
     flashOverlay.className = 'flash-overlay active';
     setTimeout(() => { flashOverlay.className = 'flash-overlay'; }, 700);
-
     modal.className        = 'modal elevate-modal';
     popupEmoji.textContent = '🌟✨🏆';
     popupBadge.className   = 'badge elevate-badge';
